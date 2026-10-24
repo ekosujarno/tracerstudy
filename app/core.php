@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.0.1';
 date_default_timezone_set('Asia/Jakarta');
 const APP_TITLE = 'Tracer Study Kampus';
 

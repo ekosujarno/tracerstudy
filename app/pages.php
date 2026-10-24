@@ -7,13 +7,37 @@ function render_page(string $page): void {
 function render_public(string $page): void {
     begin_page(ucwords($page),$page,true);
     if($page==='home'){
-        $period=current_period();$alumni=(int)val('SELECT COUNT(*) FROM alumni');$responses=(int)val("SELECT COUNT(DISTINCT alumni_id) FROM responses WHERE status='final'");$percent=percentage($responses,max($alumni,1));$companies=(int)val('SELECT COUNT(DISTINCT company_name) FROM employer_responses WHERE verified=1');
-         $hero=setting('hero_image');$heroFile=$hero&&preg_match('/^[a-z_]+_[a-f0-9]{24}\.(png|jpg|webp)$/',$hero)?'assets/uploads/'.$hero:'';
-        echo '<section class="hero"><div class="wrap hero-inner"><div class="hero-copy"><span class="hero-kicker">✦ ALUMNI BERDAYA · KAMPUS BERKUALITAS</span><h1>Jejak Alumni untuk <span>Masa Depan</span> yang Lebih Baik</h1><p>Tracer Study membantu perguruan tinggi memahami perjalanan lulusan, relevansi pendidikan, dunia kerja, dan peningkatan kualitas akademik.</p><div class="hero-actions"><a class="btn btn-gold" href="'.url(auth()?(admin_role()?'admin_dashboard':'survey'):'activate').'">Isi Tracer Study Sekarang ↗</a><a class="btn btn-outline-light" href="'.url('guide').'">Pelajari Panduan</a></div><div class="hero-signal">✓ Survei berbasis data &nbsp; ✓ Privasi terlindungi &nbsp; ✓ Mudah diakses</div></div><div class="hero-art'.($heroFile?' has-photo':'').'" '.($heroFile?'style="background-image:url('.esc($heroFile).')"':'').' aria-hidden="true"><div class="hero-ring"></div><div class="hero-building">▥</div><div class="hero-hat">🎓</div><div class="hero-art-title">ALUMNI<br>BERKARYA</div><div class="hero-art-sub">Masa depan dimulai dari jejak Anda.</div><div class="hero-decoration one">✦</div><div class="hero-decoration two">✧</div></div></div></section>';
-        echo '<section class="wrap public-stats">'.stat_card('Total Alumni',number_format($alumni,0,',','.'),'users','Database lulusan','green').stat_card('Respon Kuesioner',number_format($responses,0,',','.'),'check','Seluruh survei','blue').stat_card('Partisipasi',$percent,'chart','Dari seluruh alumni','gold').stat_card('Perusahaan Penilai',number_format($companies,0,',','.'),'company','Penilaian terverifikasi','purple').'</section>';
-        echo '<section class="wrap public-section"><div class="section-intro"><span class="eyebrow">LANGKAH MUDAH</span><h2>Isi Tracer Study dalam 4 langkah</h2><p>Partisipasi alumni membantu kampus mengevaluasi mutu lulusan dan menyesuaikan kurikulum.</p></div><div class="steps">';foreach([['01','Aktivasi / Login','Gunakan NIM dan kode akses dari pengelola.'],['02','Konfirmasi Biodata','Periksa kontak dan informasi pendidikan Anda.'],['03','Isi Kuesioner','Lengkapi pekerjaan, kompetensi, dan masukan.'],['04','Kirim Jawaban','Periksa kembali lalu submit jawaban.']] as $s)echo '<div class="step-card"><span>'.$s[0].'</span><h3>'.esc($s[1]).'</h3><p>'.esc($s[2]).'</p></div>';echo '</div></section>';
-        echo '<section class="wrap feature-banner"><div><span class="eyebrow">KOLABORASI KAMPUS & INDUSTRI</span><h2>Anda mempekerjakan alumni kami?</h2><p>Berikan penilaian kompetensi dan masukan untuk perbaikan proses pembelajaran.</p></div><a class="btn btn-gold" href="'.url('employer').'">Isi Survei Pengguna Lulusan →</a></section>';
-        if($period)echo '<div class="wrap period-public">Periode survei aktif: <b>'.esc($period['name']).'</b> · '.esc($period['start_date']).' sampai '.esc($period['end_date']).'</div>';
+        $period=current_period();
+        $alumni=(int)val('SELECT COUNT(*) FROM alumni');
+        $responses=(int)val("SELECT COUNT(DISTINCT alumni_id) FROM responses WHERE status='final'");
+        $percent=percentage($responses,max($alumni,1));
+        $companies=(int)val('SELECT COUNT(DISTINCT company_name) FROM employer_responses WHERE verified=1');
+        $hero=setting('hero_image');
+        $heroFile=$hero&&preg_match('/^[a-z_]+_[a-f0-9]{24}\.(png|jpg|webp)$/',$hero)?'assets/uploads/'.$hero:'assets/hero-wisuda.webp';
+        $cta=url(auth()?(admin_role()?'admin_dashboard':'survey'):'activate');
+        echo '<main class="ts-home"><section class="ts-hero"><div class="ts-hero-photo" style="background-image:url(&quot;'.esc($heroFile).'&quot;)"></div><div class="wrap ts-hero-inner"><div class="ts-hero-content"><p class="ts-kicker">ALUMNI BERDAYA · KAMPUS BERKUALITAS</p><h1>Jejak Alumni untuk <span>Masa Depan yang Lebih Baik</span></h1><p class="ts-lead">Tracer Study Kampus adalah sarana untuk mengetahui kiprah alumni, relevansi pendidikan dengan dunia kerja, serta mendukung peningkatan kualitas pendidikan di masa depan.</p><div class="ts-hero-actions"><a class="btn btn-gold ts-primary-cta" href="'.$cta.'">'.landing_icon('clipboard').' Isi Tracer Study Sekarang '.landing_icon('arrow').'</a><a class="btn ts-secondary-cta" href="'.url('guide').'">'.landing_icon('book').' Pelajari Panduan</a></div><div class="ts-benefits"><span><i>'.landing_icon('chart').'</i><b>Survei berbasis data<small>Mendukung keputusan kampus</small></b></span><span><i>'.landing_icon('shield').'</i><b>Privasi terlindungi<small>Data diproses dengan aman</small></b></span><span><i>'.landing_icon('users').'</i><b>Mudah diakses<small>Kapan saja, di mana saja</small></b></span></div></div></div></section>';
+        echo '<section class="wrap ts-metrics" aria-label="Statistik tracer study">';
+        foreach([
+           ['users','Total Alumni',number_format($alumni,0,',','.'),'green'],
+           ['clipboard','Respon Kuesioner',number_format($responses,0,',','.'),'blue'],
+           ['chart','Partisipasi',$percent,'orange'],
+           ['briefcase','Perusahaan Penilai',number_format($companies,0,',','.'),'purple']
+        ] as $stat){
+           echo '<article class="ts-metric"><span class="ts-metric-icon '.$stat[3].'">'.landing_icon($stat[0]).'</span><span class="ts-metric-text"><b>'.esc($stat[2]).'</b><small>'.esc($stat[1]).'</small></span><span class="ts-metric-ghost" aria-hidden="true">'.landing_icon($stat[0]).'</span></article>';
+        }
+        echo '</section>';
+        echo '<section class="ts-steps-section"><div class="wrap"><div class="ts-section-heading"><div class="ts-overline">LANGKAH MUDAH</div><h2>Isi Tracer Study dalam 4 langkah</h2><p>Ikuti langkah-langkah berikut untuk berpartisipasi dalam Tracer Study Kampus.</p></div><div class="ts-step-grid">';
+        foreach([
+            ['1','log-in','Aktivasi / Login','Masuk menggunakan akun yang telah disediakan oleh kampus Anda.'],
+            ['2','id-card','Konfirmasi Biodata','Pastikan data diri Anda sudah sesuai dan lengkap.'],
+            ['3','file-text','Isi Kuesioner','Jawab pertanyaan kuesioner mengenai studi, pekerjaan, dan pengalaman Anda.'],
+            ['4','send','Kirim Jawaban','Setelah selesai, kirim jawaban Anda untuk mendukung pengembangan kampus.']
+        ] as $step){
+            echo '<article class="ts-step"><span class="ts-step-num">'.$step[0].'</span><span class="ts-step-icon">'.landing_icon($step[1]).'</span><h3>'.esc($step[2]).'</h3><p>'.esc($step[3]).'</p></article>';
+        }
+        echo '</div></div></section>';
+        if($period)echo '<div class="wrap ts-period">Periode survei aktif: <b>'.esc($period['name']).'</b> · '.esc($period['start_date']).' sampai '.esc($period['end_date']).'</div>';
+        echo '</main>';
     }
     elseif($page==='login'){
         echo '<div class="auth-area"><div class="auth-art"><div class="auth-art-icon">🎓</div><h2>Selamat datang kembali</h2><p>Masuk ke portal Tracer Study untuk melanjutkan kontribusi Anda terhadap perkembangan kualitas kampus.</p><div class="auth-art-bottom">DATA ALUMNI · ANALITIK · DAMPAK</div></div><div class="auth-form"><span class="eyebrow">PORTAL TERINTEGRASI</span><h1>Masuk ke Akun</h1><p class="muted">Gunakan email dan password yang telah terdaftar.</p>';show_flash();echo '<form method="post">'.csrf_field().'<input type="hidden" name="action" value="login">'.form_label('Alamat email','<input name="email" type="email" required autocomplete="username" placeholder="nama@email.com">',true).form_label('Password','<input id="login-password" name="password" type="password" required autocomplete="current-password" placeholder="••••••••••">',true).'<button class="btn btn-primary full">Masuk ke Dashboard →</button></form><div class="auth-note">Belum memiliki akun alumni? <a href="'.url('activate').'">Aktivasi dengan kode akses</a></div><div class="auth-note muted">Lupa password? Hubungi admin Tracer Study untuk proses reset yang terverifikasi.</div></div></div>';
